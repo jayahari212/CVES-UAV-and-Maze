@@ -1,50 +1,17 @@
-//source: https://docs.px4.io/main/en/ros/ros2_offboard_control.html
-// https://github.com/PX4/px4_ros_com/blob/main/src/examples/offboard/offboard_control.cpp
 
-//position control in offboard mode from ROS2 node
+/*
+This code is based on offboard_control.html, an example on using offbaord control with ROS2
+in the Px4 documentation. 
 
-//so this allows us to control forward, backward, left, right movement by setting the appropriate position + velocity
+source: https://docs.px4.io/main/en/ros/ros2_offboard_control.html
+github repo: https://github.com/PX4/px4_ros_com/blob/main/src/examples/offboard/offboard_control.cpp
 
-/****************************************************************************
- *
- * Copyright 2020 PX4 Development Team. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its contributors
- * may be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- ****************************************************************************/
+position control in offboard mode from ROS2 node
 
-/**
- * @brief Offboard control example
- * @file offboard_control.cpp
- * @addtogroup examples
- * @author Mickey Cowden <info@cowden.tech>
- * @author Nuno Marques <nuno.marques@dronesolutions.io>
- */
+so this allows us to control forward, backward, left, right movement by setting the appropriate position + velocity
 
+
+*/
 #include <px4_msgs/msg/offboard_control_mode.hpp>
 #include <px4_msgs/msg/trajectory_setpoint.hpp>
 #include <px4_msgs/msg/vehicle_command.hpp>
@@ -155,11 +122,23 @@ void OffboardControl::publish_offboard_control_mode()
  */
 void OffboardControl::publish_trajectory_setpoint()
 {
+	static bool move_forward = true;
+    static double current_position_x = 0.0;
+
+    double update_distance = 1.5; //moving 1.5 meters
+    double new_position_x = current_position_x + update_distance; //update x position if we are supposed to move forward
+
+	//should insert logic here on how to move if a wall is encountered
 	TrajectorySetpoint msg{};
 	msg.position = {0.0, 0.0, -5.0};
 	msg.yaw = -3.14; // [-PI:PI]
 	msg.timestamp = this->get_clock()->now().nanoseconds() / 1000;
 	trajectory_setpoint_publisher_->publish(msg);
+
+	//update current position to new_position_x
+    current_position_x = new_position_x;
+
+    move_forward = !move_forward; //now set move_forward to false so that it only moves 1.5m at a time
 }
 
 /**

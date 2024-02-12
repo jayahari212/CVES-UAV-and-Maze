@@ -115,6 +115,26 @@ void OffboardControl::publish_offboard_control_mode()
 	offboard_control_mode_publisher_->publish(msg);
 }
 
+
+void OffboardControl:: forward(TrajectorySetpoint msg){
+	//function for forward movement
+	static int movement_counter = 0;
+    static double current_position_x = 0.0;
+
+    double update_distance = 1.5; //moving 1.5 meters
+    double new_position_x = current_position_x + update_distance; //update x position if we are supposed to move forward
+
+	TrajectorySetpoint msg{};
+	msg.position = {new_position_x, 0.0, -5.0};
+	msg.yaw = -3.14; // [-PI:PI]
+	msg.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+	trajectory_setpoint_publisher_->publish(msg);
+
+	//update current position to new_position_x
+    current_position_x = new_position_x;
+}
+
+
 /**
  * @brief Publish a trajectory setpoint
  *        For this example, it sends a trajectory setpoint to make the
@@ -122,23 +142,10 @@ void OffboardControl::publish_offboard_control_mode()
  */
 void OffboardControl::publish_trajectory_setpoint()
 {
-	static bool move_forward = true;
-    static double current_position_x = 0.0;
-
-    double update_distance = 1.5; //moving 1.5 meters
-    double new_position_x = current_position_x + update_distance; //update x position if we are supposed to move forward
-
 	//should insert logic here on how to move if a wall is encountered
 	TrajectorySetpoint msg{};
-	msg.position = {0.0, 0.0, -5.0};
-	msg.yaw = -3.14; // [-PI:PI]
-	msg.timestamp = this->get_clock()->now().nanoseconds() / 1000;
-	trajectory_setpoint_publisher_->publish(msg);
+	forward(msg)
 
-	//update current position to new_position_x
-    current_position_x = new_position_x;
-
-    move_forward = !move_forward; //now set move_forward to false so that it only moves 1.5m at a time
 }
 
 /**
@@ -149,7 +156,7 @@ void OffboardControl::publish_trajectory_setpoint()
  */
 void OffboardControl::publish_vehicle_command(uint16_t command, float param1, float param2)
 {
-	VehicleCommand msg{};
+	VehicleCommand msg{}; //this lets Px4 know what kind of offboard control we're using- we're 
 	msg.param1 = param1;
 	msg.param2 = param2;
 	msg.command = command;
@@ -172,3 +179,6 @@ int main(int argc, char *argv[])
 	rclcpp::shutdown();
 	return 0;
 }
+
+//another way to change vehicle commands: 
+//https://hamish-willee.gitbook.io/px4-user-guide/robotics/ros/ros2/ros2_offboard_control

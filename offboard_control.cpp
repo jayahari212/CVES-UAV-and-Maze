@@ -137,9 +137,9 @@ void OffboardControl:: forward(TrajectorySetpoint msg){
 void OffboardControl:: backward(TrajectorySetpoint msg){
 	//function for backward movement
 	TrajectorySetpoint msg{};
-	forward(msg)
 	leftturn(msg) //placeholder function for left turn below; when content is added to leftturn, feel free to remove this comment
 	leftturn(msg)
+	forward(msg)
 }
 
 void OffboardControl:: leftturn(TrajectorySetpoint msg){

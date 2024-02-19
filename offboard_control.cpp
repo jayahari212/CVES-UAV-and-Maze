@@ -137,10 +137,20 @@ void OffboardControl:: forward(TrajectorySetpoint msg){
 
 void OffboardControl:: backward(TrajectorySetpoint msg){
 	//function for backward movement
+	static int movement_counter = 0;
+    static double current_position_x = 0.0;
+
+    double update_distance = 1.5; //moving 1.5 meters
+    double new_position_x = current_position_x - update_distance; //update x position if we are supposed to move forward
+
 	TrajectorySetpoint msg{};
-	leftturn(msg) //placeholder function for left turn below; when content is added to leftturn, feel free to remove this comment
-	leftturn(msg)
-	forward(msg)
+	msg.position = {new_position_x, 0.0, -5.0};
+	msg.yaw = -3.14; // [-PI:PI]
+	msg.timestamp = this->get_clock()->now().nanoseconds() / 1000;
+	trajectory_setpoint_publisher_->publish(msg);
+
+	//update current position to new_position_x
+    current_position_x = new_position_x;
 }
 
 void OffboardControl:: leftturn(TrajectorySetpoint msg){

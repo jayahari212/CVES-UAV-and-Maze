@@ -21,6 +21,7 @@ so this allows us to control forward, backward, left, right movement by setting 
 
 #include <chrono>
 #include <iostream>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -143,7 +144,14 @@ void OffboardControl:: backward(TrajectorySetpoint msg){
 }
 
 void OffboardControl:: leftturn(TrajectorySetpoint msg){
-	//placeholder for left turn
+	//referenced from "Quaternion fundamentals" from ROS 2 Documentation
+	tf2::Quaternion q_orig, q_rot, q_new;
+	q_orig.setRPY(msg.yaw);
+	q_rot.setRPY(3.14159/2, 0.0, 0.0) //we want to rotate by pi/2 about X
+	q_new = q_rot * q_orig; //used to transform current yaw
+	q_new.normalize();
+	
+	
 }
 
 void OffboardControl:: rightturn(TrajectorySetpoint msg){

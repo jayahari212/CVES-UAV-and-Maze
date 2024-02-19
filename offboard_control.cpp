@@ -134,6 +134,21 @@ void OffboardControl:: forward(TrajectorySetpoint msg){
     current_position_x = new_position_x;
 }
 
+void OffboardControl:: backward(TrajectorySetpoint msg){
+	//function for backward movement
+	TrajectorySetpoint msg{};
+	forward(msg)
+	leftturn(msg) //placeholder function for left turn below; when content is added to leftturn, feel free to remove this comment
+	leftturn(msg)
+}
+
+void OffboardControl:: leftturn(TrajectorySetpoint msg){
+	//placeholder for left turn
+}
+
+void OffboardControl:: rightturn(TrajectorySetpoint msg){
+	//placeholder for right turn
+}
 
 /**
  * @brief Publish a trajectory setpoint

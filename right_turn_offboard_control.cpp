@@ -147,22 +147,27 @@ void OffboardControl::publish_offboard_control_mode()
  *        vehicle hover at 5 meters with a yaw angle of 180 degrees.
  */
 
-//FUNCTION TO CHANGE YAW
-static double curr_yaw = -3.14;
-static double  right_turn(double current_yaw){
-	double new_yaw = curr_yaw + 3.14/2;
-	return new_yaw;
-}
 
 void OffboardControl::publish_trajectory_setpoint()
 {
+    static int turn_counter = 0;
+    static double curr_yaw = -3.14;
+    double new_yaw;
+    double update_yaw = 3.14 / 2;
+    
+    new_yaw = curr_yaw + update_yaw;
+    if (new_yaw > 3.14) {
+        new_yaw -= 2 * 3.14; // Correcting the angle wrap-around
+    } 
+
 	TrajectorySetpoint msg{};
 	msg.position = {0.0, 0.0, -5.0};
-	double new_yaw = right_turn(curr_yaw)
-	//CHANGED YAW
 	msg.yaw = new_yaw; // [-PI:PI]
 	msg.timestamp = this->get_clock()->now().nanoseconds() / 1000;
 	trajectory_setpoint_publisher_->publish(msg);
+
+	//update current position to new_position_x
+    curr_yaw = new_yaw;
 }
 
 /**
